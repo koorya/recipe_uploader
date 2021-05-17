@@ -1,0 +1,38 @@
+<form id="my_form">
+  <input type="file" onchange="onFileChange(event)" />
+</form>
+<button onclick="send()">send</button>
+
+<img id="my_image" />
+
+<script>
+  let selectedFile = null;
+  const onFileChange = (e) => {
+    selectedFile = e.target.files[0];
+    console.log("file changed");
+    console.log(selectedFile.name);
+  };
+
+  const send = () => {
+    const uploadImageData = new FormData();
+    uploadImageData.append("imageFile", selectedFile, selectedFile.name);
+    fetch("http://localhost:8080/image/upload", {
+      method: "POST",
+      body: uploadImageData,
+    })
+      .then((res) => res.text())
+      .then((res) => {
+        console.log(res);
+        getImage();
+      });
+  };
+
+  const getImage = () => {
+    fetch("http://localhost:8080/image/get/" + selectedFile.name)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("data:image/jpeg;base64," + res.picByte)
+        document.getElementById('my_image').src = "data:image/jpeg;base64," + res.picByte
+      });
+  };
+</script>
